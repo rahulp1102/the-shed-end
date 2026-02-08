@@ -14,19 +14,19 @@ export interface ChatMessage {
 
 export const sendMessageToGaffer = async (message: string, history: ChatMessage[]): Promise<string> => {
   if (!genAI) {
-    return "I'm currently scouting the next opposition and can't reach the tactical board (API Key missing).";
+    return "DEBUG: API Key is missing. Check Vercel settings.";
   }
 
   try {
-    // We use gemini-1.5-flash because it is the standard for the free tier
+    // 1. Use the model found in your list
+    // 2. Force 'v1beta' because 2.0-flash is a preview model
     const model = genAI.getGenerativeModel({ 
       model: "gemini-2.0-flash",
       systemInstruction: "You are 'The Gaffer', a senior tactical analyst and club historian for Chelsea Football Club. You speak with authority, passion, and deep knowledge of Chelsea FC. You refer to Chelsea as 'we' or 'The Blues'. Your answers are insightful but concise (max 150 words). Always end with a short rallying cry like 'KTBFFH' or 'Up the Chels'."
-    });
+    }, { apiVersion: 'v1beta' });
 
     const validHistory = history
       .filter((msg, index) => {
-        // Remove the first message if it's from the bot (Google rule)
         if (index === 0 && msg.role === 'model') return false;
         return true;
       })
@@ -44,13 +44,8 @@ export const sendMessageToGaffer = async (message: string, history: ChatMessage[
     return response.text();
     
   } catch (error: any) {
-    console.error("AI Error Details:", error);
-    
-    // If the 404 persists, we tell the user exactly what to do
-    if (error.message?.includes('404')) {
-      return "Tactical Error: The 'Generative Language API' is disabled on your Google account. Please enable it in the Google Cloud Console.";
-    }
-    
-    return "The press conference room is a bit noisy (Connection Error). Try again in a moment.";
+    console.error("AI Error:", error);
+    // DEBUG MODE: This will print the real error in the chat bubble
+    return `DEBUG ERROR: ${error.message}`;
   }
 };
