@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, ArrowUpDown } from 'lucide-react';
-// import { PLAYERS } from '../constants';  <-- REMOVE THIS
-import { fetchSquad } from '../services/footballData'; // <-- IMPORT THIS
+import { fetchSquad } from '../services/footballData'; // Import the new service
 import { Player } from '../types';
 
+// Inside your Squad component:
 export default function Squad() {
-  // 1. Add State for Players and Loading
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 2. Fetch Data on Component Mount
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
