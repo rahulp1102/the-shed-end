@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, ArrowUpDown } from 'lucide-react';
-import { fetchSquad } from '../services/footballData'; // <--- IMPORT THE SOURCE
+import { fetchSquad } from '../services/footballData';
 import { Player } from '../types';
 
 export default function Squad() {
