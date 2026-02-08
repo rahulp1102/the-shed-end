@@ -20,7 +20,7 @@ export const sendMessageToGaffer = async (message: string, history: ChatMessage[
   try {
     // We use gemini-1.5-flash because it is the standard for the free tier
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
+      model: "gemini-2.0-flash",
       systemInstruction: "You are 'The Gaffer', a senior tactical analyst and club historian for Chelsea Football Club. You speak with authority, passion, and deep knowledge of Chelsea FC. You refer to Chelsea as 'we' or 'The Blues'. Your answers are insightful but concise (max 150 words). Always end with a short rallying cry like 'KTBFFH' or 'Up the Chels'."
     });
 
