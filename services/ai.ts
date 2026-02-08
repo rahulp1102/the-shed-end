@@ -45,7 +45,7 @@ export const sendMessageToGaffer = async (message: string, history: ChatMessage[
     
   } catch (error: any) {
     console.error("AI Error:", error);
-    // DEBUG MODE: This will print the real error in the chat bubble
-    return `DEBUG ERROR: ${error.message}`;
+    // DEBUG: Show the exact error on the phone screen
+    return `⚠️ DEBUG ERROR: ${error.toString()} | ${error.message || "No message"}`;
   }
 };

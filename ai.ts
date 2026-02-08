@@ -21,7 +21,7 @@ export const sendMessageToGaffer = async (message: string, history: ChatMessage[
     // 1. Use the model found in your list
     // 2. Force 'v1beta' because 2.0-flash is a preview model
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-flash-latest",
+      model: "gemini-2.0-flash",
       systemInstruction: "You are 'The Gaffer', a senior tactical analyst and club historian for Chelsea Football Club. You speak with authority, passion, and deep knowledge of Chelsea FC. You refer to Chelsea as 'we' or 'The Blues'. Your answers are insightful but concise (max 150 words). Always end with a short rallying cry like 'KTBFFH' or 'Up the Chels'."
     }, { apiVersion: 'v1beta' });
 
@@ -45,7 +45,7 @@ export const sendMessageToGaffer = async (message: string, history: ChatMessage[
     
   } catch (error: any) {
     console.error("AI Error:", error);
-    // DEBUG MODE: This will print the real error in the chat bubble
-    return `DEBUG ERROR: ${error.message}`;
+    // DEBUG: Show the exact error on the phone screen
+    return `⚠️ DEBUG ERROR: ${error.toString()} | ${error.message || "No message"}`;
   }
 };
