@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Newspaper, Loader2 } from 'lucide-react'; // Added Loader2
-import { fetchNews } from '../services/api';      // Import the API function
-import { NewsItem } from '../types';
+import { Newspaper, Loader2 } from 'lucide-react';
+import { fetchNews } from './api';  // <--- FIXED: Changed from '../services/api' to './api'
+import { NewsItem } from './types'; // <--- FIXED: Changed from '../types' to './types'
 
 export default function NewsPage() {
   const [news, setNews] = useState<NewsItem[]>([]);
