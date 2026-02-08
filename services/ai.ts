@@ -20,7 +20,7 @@ export const sendMessageToGaffer = async (message: string, history: ChatMessage[
 
   try {
     // 2. Initialize Model
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
     // 3. Clean History (The most common crash cause)
     // We remove the very first message if it's from the bot, because Google bans that.
