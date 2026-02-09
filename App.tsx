@@ -17,29 +17,38 @@ import Squad from './pages/Squad';
 import Fixtures from './pages/Fixtures';
 import Transfers from './pages/Transfers';
 import Standings from './pages/Standings';
-import Academy from './pages/Academy';       // <--- New
-import LoanWatch from './pages/LoanWatch';   // <--- New
-import Stats from './pages/Stats';           // <--- New
-import PredictXI from './pages/PredictXI';   // <--- New
-import FanZone from './pages/FanZone';       // <--- New
-import NewsPage from './pages/News';         // <--- New
+import Academy from './pages/Academy';
+import LoanWatch from './pages/LoanWatch';
+import Stats from './pages/Stats';
+import PredictXI from './pages/PredictXI';
+import FanZone from './pages/FanZone';
+import NewsPage from './pages/News';
+
+// --- IMPORT COMPONENTS ---
+import { AskTheGaffer } from './components/AskTheGaffer'; // <--- NEW IMPORT
 
 // --- API Service for Sidebar Widget ---
 import { fetchMatches } from './services/api'; 
 import { Match } from './types';
 
-const Navigation = ({ mobileOpen, setMobileOpen }: { mobileOpen: boolean, setMobileOpen: (open: boolean) => void }) => {
+// Updated Props Interface to accept Dark Mode controls
+const Navigation = ({ 
+  mobileOpen, 
+  setMobileOpen, 
+  darkMode, 
+  toggleTheme 
+}: { 
+  mobileOpen: boolean, 
+  setMobileOpen: (open: boolean) => void,
+  darkMode: boolean,
+  toggleTheme: () => void
+}) => {
   const location = useLocation();
   const [nextMatch, setNextMatch] = useState<Match | null>(null);
-  const [darkMode, setDarkMode] = useState(true);
 
-  const toggleTheme = () => {
-    setDarkMode(!darkMode);
-    document.documentElement.classList.toggle('dark');
-  };
+  // Removed local state here, receiving from props instead
 
   useEffect(() => {
-    document.documentElement.classList.add('dark');
     const loadNextMatch = async () => {
       try {
         const matches = await fetchMatches();
@@ -52,7 +61,6 @@ const Navigation = ({ mobileOpen, setMobileOpen }: { mobileOpen: boolean, setMob
     loadNextMatch();
   }, []);
   
-  // Keep Sidebar clean (User preference from screenshot)
   const navItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
     { name: 'Squad', icon: Users, path: '/squad' },
@@ -159,19 +167,40 @@ const Header = ({ setMobileOpen }: { setMobileOpen: (o: boolean) => void }) => {
 
 export default function App() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  
+  // --- MOVED DARK MODE STATE HERE ---
+  const [darkMode, setDarkMode] = useState(true);
+
+  useEffect(() => {
+    // Force dark mode on initial load
+    document.documentElement.classList.add('dark');
+  }, []);
+
+  const toggleTheme = () => {
+    if (darkMode) {
+      document.documentElement.classList.remove('dark');
+      setDarkMode(false);
+    } else {
+      document.documentElement.classList.add('dark');
+      setDarkMode(true);
+    }
+  };
 
   return (
     <Router>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-sans transition-colors duration-300">
-        <Navigation mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
+        <Navigation 
+          mobileOpen={mobileOpen} 
+          setMobileOpen={setMobileOpen} 
+          darkMode={darkMode}       // Pass prop
+          toggleTheme={toggleTheme} // Pass prop
+        />
         
         <div className="md:pl-64 flex flex-col min-h-screen">
           <Header setMobileOpen={setMobileOpen} />
           
           <main className="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full relative">
             
-            {/* --- 2. DEFINE THE ROUTES HERE --- */}
-            {/* This connects the URL to the Page Component */}
             <Routes>
               {/* Main Sidebar Pages */}
               <Route path="/" element={<Dashboard />} />
@@ -180,7 +209,7 @@ export default function App() {
               <Route path="/transfers" element={<Transfers />} />
               <Route path="/standings" element={<Standings />} />
 
-              {/* The "Explore Hub" Pages (Now these will work!) */}
+              {/* The "Explore Hub" Pages */}
               <Route path="/academy" element={<Academy />} />
               <Route path="/loan-watch" element={<LoanWatch />} />
               <Route path="/stats" element={<Stats />} />
@@ -191,6 +220,10 @@ export default function App() {
 
           </main>
         </div>
+
+        {/* --- ADDED CHATBOT HERE --- */}
+        <AskTheGaffer />
+        
       </div>
     </Router>
   );

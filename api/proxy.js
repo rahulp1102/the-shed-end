@@ -1,41 +1,49 @@
-// api/proxy.js
 export default async function handler(req, res) {
-    const { type } = req.query;
-    
-    // These variables will be loaded from Vercel settings automatically
-    const FOOTBALL_KEY = process.env.RAPIDAPI_KEY; 
-    const NEWS_KEY = process.env.NEWS_API_KEY;
+  const { type } = req.query;
   
-    try {
-      if (type === 'matches') {
-        // USING YOUR DIRECT API KEY HERE
-        const response = await fetch("https://v3.football.api-sports.io/fixtures?team=49&last=5&next=5", {
-          headers: {
-            "x-apisports-key": FOOTBALL_KEY,  // This is the header for your specific key
-          }
-        });
-        
-        const data = await response.json();
-        
-        // Check for errors from the API provider
-        if (data.errors && Object.keys(data.errors).length > 0) {
-          console.error("API Sports Error:", data.errors);
-          return res.status(500).json({ error: "API Provider Error", details: data.errors });
+  // Make sure these are set in your Vercel Project Settings > Environment Variables
+  const FOOTBALL_KEY = process.env.RAPIDAPI_KEY; 
+  const NEWS_KEY = process.env.NEWS_API_KEY;
+
+  try {
+    // --- 1. MATCHES (Fixtures & Results) ---
+    if (type === 'matches') {
+      // Fetches Chelsea (ID 49) matches for the 2024 season
+      // We use season=2024 to get the full schedule for the Fixtures page
+      const response = await fetch("https://v3.football.api-sports.io/fixtures?team=49&season=2024", {
+        headers: {
+          "x-apisports-key": FOOTBALL_KEY,
         }
-  
-        return res.status(200).json(data);
-      } 
+      });
       
-      else if (type === 'news') {
-        const response = await fetch(`https://newsapi.org/v2/everything?q="Chelsea FC"&language=en&sortBy=publishedAt&apiKey=${NEWS_KEY}`);
-        const data = await response.json();
-        return res.status(200).json(data);
-      }
-      
-      return res.status(400).json({ error: "Invalid type" });
-  
-    } catch (error) {
-      console.error("Proxy Error:", error);
-      return res.status(500).json({ error: "Server error", details: error.message });
+      const data = await response.json();
+      return res.status(200).json(data);
+    } 
+    
+    // --- 2. STANDINGS (League Table) --- <--- THIS WAS MISSING
+    else if (type === 'standings') {
+      // Premier League (ID 39), Season 2024
+      const response = await fetch("https://v3.football.api-sports.io/standings?league=39&season=2024", {
+        headers: {
+          "x-apisports-key": FOOTBALL_KEY,
+        }
+      });
+
+      const data = await response.json();
+      return res.status(200).json(data);
     }
+
+    // --- 3. NEWS ---
+    else if (type === 'news') {
+      const response = await fetch(`https://newsapi.org/v2/everything?q="Chelsea FC"&language=en&sortBy=publishedAt&apiKey=${NEWS_KEY}`);
+      const data = await response.json();
+      return res.status(200).json(data);
+    }
+    
+    return res.status(400).json({ error: "Invalid type" });
+
+  } catch (error) {
+    console.error("Proxy Error:", error);
+    return res.status(500).json({ error: "Server error", details: error.message });
   }
+}
