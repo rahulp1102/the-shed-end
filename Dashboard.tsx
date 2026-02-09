@@ -1,55 +1,40 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowRight, AlertTriangle, TrendingUp, Activity, Loader2, Timer, Calendar } from 'lucide-react';
+import { 
+  ArrowRight, AlertTriangle, TrendingUp, Activity, Loader2, Timer, Calendar, 
+  GraduationCap, Plane, Megaphone, BarChart2, ClipboardList, Trophy 
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { PLAYERS } from '../constants'; // Uses your 2026 Squad
-import { fetchMatches, fetchNews } from '../services/api'; // Uses your Smart API
+import { PLAYERS } from '../constants'; 
+import { fetchMatches, fetchNews } from '../services/api'; 
 import { Match, NewsItem } from '../types';
 
 // --- SUB-COMPONENTS ---
 
+const QuickLinkCard = ({ title, icon: Icon, color, to, desc }: { title: string, icon: any, color: string, to: string, desc: string }) => (
+  <Link to={to} className="group relative overflow-hidden bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:-translate-y-1 transition-all">
+    <div className={`absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity ${color}`}>
+      <Icon size={64} />
+    </div>
+    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${color} bg-opacity-10 text-opacity-100`}>
+      <Icon size={24} className={color.replace('bg-', 'text-')} />
+    </div>
+    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1 group-hover:text-blue-600 transition-colors">{title}</h3>
+    <p className="text-sm text-gray-500 dark:text-gray-400">{desc}</p>
+  </Link>
+);
+
 const StatCard: React.FC<{ title: string, value: string, subtext: string, trend?: 'up' | 'down' | 'neutral' }> = ({ title, value, subtext, trend }) => (
-  <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors">
-    <h3 className="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase tracking-wide">{title}</h3>
+  <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+    <h3 className="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wider">{title}</h3>
     <div className="mt-2 flex items-baseline gap-2">
-      <span className="text-3xl font-bold text-blue-600 dark:text-white">{value}</span>
+      <span className="text-3xl font-black text-gray-900 dark:text-white">{value}</span>
     </div>
     <div className="mt-2 flex items-center gap-2">
       {trend === 'up' && <TrendingUp size={16} className="text-green-500" />}
       {trend === 'down' && <TrendingUp size={16} className="text-red-500 rotate-180" />}
-      <span className="text-sm text-gray-400 dark:text-gray-500">{subtext}</span>
+      <span className="text-xs font-medium text-gray-500">{subtext}</span>
     </div>
   </div>
-);
-
-const NewsCard: React.FC<{ news: NewsItem }> = ({ news }) => (
-  <a href={news.url} className="group relative overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-gray-700 block h-full flex flex-col">
-    <div className="aspect-video w-full overflow-hidden relative">
-      <img 
-        src={news.image} 
-        alt={news.title} 
-        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" 
-      />
-      <div className="absolute top-2 right-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded backdrop-blur-sm">
-        {news.timestamp}
-      </div>
-    </div>
-    <div className="p-5 flex-1 flex flex-col">
-      <div className="mb-2 flex items-center gap-2">
-        <span className="rounded-full bg-blue-100 dark:bg-blue-900 px-2 py-1 text-xs font-bold text-blue-600 dark:text-blue-300 uppercase tracking-wider">
-          {news.category || 'News'}
-        </span>
-      </div>
-      <h3 className="mb-3 text-lg font-bold leading-tight text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors line-clamp-2">
-        {news.title}
-      </h3>
-      <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3 mb-4 flex-1">
-        {news.summary}
-      </p>
-      <div className="text-xs font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1 group-hover:gap-2 transition-all">
-        Read Article <ArrowRight size={12} />
-      </div>
-    </div>
-  </a>
 );
 
 const Countdown = ({ targetDate }: { targetDate: string }) => {
@@ -108,8 +93,6 @@ export default function Dashboard() {
 
   const nextMatch = matches.find(m => m.status === 'Upcoming');
   const lastMatch = [...matches].reverse().find(m => m.status === 'Finished');
-  
-  // Logic: Get injured players from our Constants file
   const injuredPlayers = PLAYERS.filter(p => p.status.includes('Injured'));
 
   if (loading) return (
@@ -123,35 +106,29 @@ export default function Dashboard() {
       
       {/* HERO SECTION */}
       <section className="grid gap-6 lg:grid-cols-3">
-        
         {/* NEXT MATCH CARD */}
         <div className="lg:col-span-2 relative overflow-hidden rounded-3xl bg-blue-700 text-white shadow-xl min-h-[350px] group">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-900 to-blue-600 opacity-90"></div>
-          
           <div className="relative z-10 flex h-full flex-col justify-between p-8">
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-2 rounded-full bg-yellow-400 px-3 py-1 text-xs font-bold uppercase tracking-wider text-blue-900 shadow-lg">
                   <Timer size={12} /> Next Match
                 </div>
               </div>
-              
               <div className="mt-4">
                 <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
                   <div className="text-5xl font-bold">Chelsea</div>
                   <div className="text-xl font-light text-blue-300">vs</div>
                   <div className="text-5xl font-bold opacity-90">{nextMatch?.opponent || 'TBD'}</div>
                 </div>
-                
                 <p className="mt-4 text-lg text-blue-100 flex items-center gap-4">
                   <span className="bg-white/20 px-2 py-1 rounded text-sm">{nextMatch?.competition}</span>
                   <span className="flex items-center gap-2"><Calendar size={16} /> 
                     {nextMatch?.date ? new Date(nextMatch.date).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' }) : 'TBD'}
                   </span>
                 </p>
-                
                 {nextMatch?.date && <Countdown targetDate={nextMatch.date} />}
               </div>
-
               <div className="mt-8 flex gap-4">
                 <Link to="/fixtures" className="rounded-xl bg-white px-6 py-3 font-bold text-blue-700 hover:bg-yellow-400 hover:text-blue-900 transition-colors shadow-lg">
                   Match Centre
@@ -160,10 +137,8 @@ export default function Dashboard() {
             </div>
         </div>
 
-        {/* SIDEBAR */}
+        {/* SIDEBAR: Last Result & Injury */}
         <div className="space-y-6">
-          
-          {/* LAST RESULT */}
           <div className="rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-sm border border-gray-100 dark:border-gray-700">
              <div className="flex justify-between items-center mb-4">
                <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
@@ -189,8 +164,6 @@ export default function Dashboard() {
                 <p className="text-gray-500 text-sm">No recent matches.</p>
              )}
           </div>
-
-          {/* INJURY LIST */}
           <div className="rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-sm border border-gray-100 dark:border-gray-700">
             <div className="flex items-center gap-2 mb-4 text-red-500">
                <AlertTriangle size={18} />
@@ -217,19 +190,74 @@ export default function Dashboard() {
 
       {/* QUICK STATS */}
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="League Position" value="2nd" subtext="Chasing Liverpool" trend="up" />
+        <StatCard title="League Pos" value="2nd" subtext="Chasing Liverpool" trend="up" />
         <StatCard title="Top Scorer" value="18" subtext="Cole Palmer" trend="up" />
-        <StatCard title="Next Fixture" value="Man City" subtext="Title Decider" trend="neutral" />
+        <StatCard title="Avg Poss" value="62%" subtext="Rank 2nd in PL" trend="up" />
         <StatCard title="Clean Sheets" value="12" subtext="Robert Sanchez" trend="up" />
+      </section>
+
+      {/* --- EXPLORE THE HUB (NEW SECTION) --- */}
+      <section>
+        <div className="flex items-center justify-between mb-6">
+           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Explore The Hub</h2>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+           <QuickLinkCard 
+             title="Academy" 
+             to="/academy" 
+             icon={GraduationCap} 
+             color="bg-blue-500" 
+             desc="Future Stars"
+           />
+           <QuickLinkCard 
+             title="Loan Watch" 
+             to="/loan-watch" 
+             icon={Plane} 
+             color="bg-purple-500" 
+             desc="Global Tracker"
+           />
+           <QuickLinkCard 
+             title="Stats" 
+             to="/stats" 
+             icon={BarChart2} 
+             color="bg-green-500" 
+             desc="Season Data"
+           />
+           <QuickLinkCard 
+             title="Predict XI" 
+             to="/predict" 
+             icon={ClipboardList} 
+             color="bg-orange-500" 
+             desc="Pick Your Team"
+           />
+           <QuickLinkCard 
+             title="Fan Zone" 
+             to="/fanzone" 
+             icon={Megaphone} 
+             color="bg-yellow-500" 
+             desc="Chants & Guide"
+           />
+        </div>
       </section>
 
       {/* LATEST NEWS */}
       <section>
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Latest Updates</h2>
+          <Link to="/news" className="text-sm font-bold text-blue-600 hover:underline">View All</Link>
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {news.map(item => <NewsCard key={item.id} news={item} />)}
+            {news.slice(0, 3).map(item => (
+                <Link key={item.id} to={item.url} className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all">
+                    <div className="aspect-video overflow-hidden">
+                        <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"/>
+                    </div>
+                    <div className="p-5">
+                        <span className="text-xs font-bold text-blue-600 uppercase">{item.category}</span>
+                        <h3 className="font-bold text-gray-900 dark:text-white mt-1 group-hover:text-blue-600 transition-colors">{item.title}</h3>
+                    </div>
+                </Link>
+            ))}
         </div>
       </section>
     </div>

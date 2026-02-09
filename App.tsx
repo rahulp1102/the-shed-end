@@ -1,23 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, NavLink, useLocation } from 'react-router-dom';
 import { 
-  Home, 
+  LayoutDashboard, 
   CalendarDays, 
   Users, 
   ArrowRightLeft, 
   Trophy,
   Menu,
   Moon,
-  Sun,
-  LayoutDashboard
+  Sun
 } from 'lucide-react';
 
-// --- IMPORT YOUR PAGES ---
+// --- 1. IMPORT ALL YOUR PAGES ---
 import Dashboard from './pages/Dashboard';
 import Squad from './pages/Squad';
-import Fixtures from './pages/Fixtures'; // Renamed from MatchCentre to match your file
+import Fixtures from './pages/Fixtures';
 import Transfers from './pages/Transfers';
 import Standings from './pages/Standings';
+import Academy from './pages/Academy';       // <--- New
+import LoanWatch from './pages/LoanWatch';   // <--- New
+import Stats from './pages/Stats';           // <--- New
+import PredictXI from './pages/PredictXI';   // <--- New
+import FanZone from './pages/FanZone';       // <--- New
+import NewsPage from './pages/News';         // <--- New
 
 // --- API Service for Sidebar Widget ---
 import { fetchMatches } from './services/api'; 
@@ -26,19 +31,15 @@ import { Match } from './types';
 const Navigation = ({ mobileOpen, setMobileOpen }: { mobileOpen: boolean, setMobileOpen: (open: boolean) => void }) => {
   const location = useLocation();
   const [nextMatch, setNextMatch] = useState<Match | null>(null);
-  const [darkMode, setDarkMode] = useState(true); // Simple theme state
+  const [darkMode, setDarkMode] = useState(true);
 
-  // Toggle Theme Helper
   const toggleTheme = () => {
     setDarkMode(!darkMode);
     document.documentElement.classList.toggle('dark');
   };
 
   useEffect(() => {
-    // Initial Dark Mode Set
     document.documentElement.classList.add('dark');
-
-    // Sidebar "Next Match" Widget
     const loadNextMatch = async () => {
       try {
         const matches = await fetchMatches();
@@ -51,6 +52,7 @@ const Navigation = ({ mobileOpen, setMobileOpen }: { mobileOpen: boolean, setMob
     loadNextMatch();
   }, []);
   
+  // Keep Sidebar clean (User preference from screenshot)
   const navItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
     { name: 'Squad', icon: Users, path: '/squad' },
@@ -106,7 +108,6 @@ const Navigation = ({ mobileOpen, setMobileOpen }: { mobileOpen: boolean, setMob
           })}
         </nav>
 
-        {/* Sidebar Footer / Theme Toggle */}
         <div className="p-4 border-t border-white/10 space-y-4">
           <button 
             onClick={toggleTheme}
@@ -118,7 +119,6 @@ const Navigation = ({ mobileOpen, setMobileOpen }: { mobileOpen: boolean, setMob
             </span>
           </button>
 
-          {/* Mini Next Match Widget */}
           <div className="rounded-xl bg-gradient-to-br from-blue-950 to-blue-800 p-4 border border-white/10 shadow-inner">
             <div className="flex items-center gap-2 text-yellow-400 mb-2">
               <Trophy size={16} />
@@ -169,13 +169,26 @@ export default function App() {
           <Header setMobileOpen={setMobileOpen} />
           
           <main className="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full relative">
+            
+            {/* --- 2. DEFINE THE ROUTES HERE --- */}
+            {/* This connects the URL to the Page Component */}
             <Routes>
+              {/* Main Sidebar Pages */}
               <Route path="/" element={<Dashboard />} />
               <Route path="/squad" element={<Squad />} />
               <Route path="/fixtures" element={<Fixtures />} />
               <Route path="/transfers" element={<Transfers />} />
               <Route path="/standings" element={<Standings />} />
+
+              {/* The "Explore Hub" Pages (Now these will work!) */}
+              <Route path="/academy" element={<Academy />} />
+              <Route path="/loan-watch" element={<LoanWatch />} />
+              <Route path="/stats" element={<Stats />} />
+              <Route path="/predict" element={<PredictXI />} />
+              <Route path="/fanzone" element={<FanZone />} />
+              <Route path="/news" element={<NewsPage />} />
             </Routes>
+
           </main>
         </div>
       </div>
