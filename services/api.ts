@@ -1,8 +1,23 @@
-import { Match, NewsItem } from './types';
+import { Match, NewsItem } from '../types';
 
+// --- CONFIGURATION ---
+const API_KEY = '5f457185de1af36d836a866d80c4bdff'; // Your Key
+const BASE_URL = 'https://v3.football.api-football.com';
+
+const HEADERS = {
+  'x-rapidapi-host': 'v3.football.api-football.com',
+  'x-rapidapi-key': API_KEY,
+};
+
+// --- 1. FETCH MATCHES (Fixtures) ---
 export const fetchMatches = async (): Promise<Match[]> => {
   try {
-    const res = await fetch('/api/proxy?type=matches');
+    // Fetching Chelsea (ID 49) matches for the 2024 season (Current IRL season)
+    const res = await fetch(`${BASE_URL}/fixtures?season=2024&team=49`, {
+      method: 'GET',
+      headers: HEADERS,
+    });
+    
     const data = await res.json();
     
     if (!data.response) return [];
@@ -22,12 +37,31 @@ export const fetchMatches = async (): Promise<Match[]> => {
       events: [] 
     }));
   } catch (error) {
-    console.error("API Error", error);
+    console.error("API Error (Matches)", error);
     return []; 
   }
 };
 
-// This is the part that was missing or not exported!
+// --- 2. FETCH STANDINGS (Table) ---
+export const fetchStandings = async () => {
+  try {
+    // Premier League is League ID 39
+    const res = await fetch(`${BASE_URL}/standings?season=2024&league=39`, {
+      method: 'GET',
+      headers: HEADERS,
+    });
+
+    const data = await res.json();
+    
+    // Return the standings array (Rank 1-20)
+    return data.response?.[0]?.league?.standings?.[0] || [];
+  } catch (error) {
+    console.error("API Error (Standings)", error);
+    return [];
+  }
+};
+
+// --- 3. FETCH NEWS (Kept exactly as you had it) ---
 export const fetchNews = async (): Promise<NewsItem[]> => {
   try {
     const res = await fetch('/api/proxy?type=news');
