@@ -1,30 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Music, MapPin, Beer, Train, Info, Play, Pause } from 'lucide-react';
 
+// --- CHANT DATA ---
+// NOTE: Make sure your MP3 files are inside the "public/audio" folder!
 const CHANTS = [
   {
     id: '1',
     title: 'Blue Is The Colour',
     lyrics: "Blue is the colour, football is the game\nWe're all together, and winning is our aim\nSo cheer us on through the sun and rain\n'Cause Chelsea, Chelsea is our name!",
-    audio: '#' // Placeholder
+    audio: '/audio/blue-is-the-colour.mp3' 
   },
   {
     id: '2',
     title: 'Keep The Blue Flag Flying High',
     lyrics: "Flying high, up in the sky,\nWe'll keep the blue flag flying high,\nFrom Stamford Bridge to Wemb-er-ley,\nWe'll keep the blue flag flying high!",
-    audio: '#'
+    audio: '/audio/blue-flag.mp3'
   },
   {
     id: '3',
     title: 'Liquidator',
     lyrics: "(Clap... Clap... Clap Clap Clap...)\nCHELSEA!\n(Clap... Clap... Clap Clap Clap...)\nCHELSEA!",
-    audio: '#'
+    audio: '/audio/liquidator.mp3'
   },
   {
     id: '4',
     title: 'Ten Men Went To Mow',
     lyrics: "One man went to mow, went to mow a meadow,\nOne man and his dog (Spot!), went to mow a meadow...",
-    audio: '#'
+    audio: '/audio/ten-men.mp3'
   }
 ];
 
@@ -35,29 +37,49 @@ const PUBS = [
 ];
 
 export default function FanZone() {
-  const [playing, setPlaying] = useState<string | null>(null);
+  // We use a 'ref' to keep track of the actual Audio player in the background
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [playingId, setPlayingId] = useState<string | null>(null);
 
-  const togglePlay = (id: string) => {
-    if (playing === id) {
-      setPlaying(null);
-    } else {
-      setPlaying(id);
+  const togglePlay = (chant: typeof CHANTS[0]) => {
+    // 1. If the clicked song is ALREADY playing, pause it.
+    if (playingId === chant.id) {
+      audioRef.current?.pause();
+      setPlayingId(null);
+      return;
     }
+
+    // 2. If a DIFFERENT song is playing, stop it first.
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0; // Rewind to start
+    }
+
+    // 3. Play the new song
+    const newAudio = new Audio(chant.audio);
+    
+    // When the song finishes, reset the button to "Play" icon
+    newAudio.onended = () => setPlayingId(null);
+    
+    // Play and save reference
+    newAudio.play().catch(e => console.error("Audio playback failed:", e));
+    audioRef.current = newAudio;
+    setPlayingId(chant.id);
   };
 
   return (
-    <div className="animate-fade-in space-y-8">
+    <div className="animate-fade-in space-y-8 pt-20 pb-12 px-4 max-w-7xl mx-auto">
       <div>
-        <h1 className="text-3xl font-bold text-chelsea-dark dark:text-white">The 12th Man</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">The 12th Man</h1>
         <p className="text-gray-500 dark:text-gray-400">Matchday atmosphere, chants, and stadium guide.</p>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Virtual Chant Book */}
-        <section className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-          <div className="p-6 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-chelsea-blue to-chelsea-dark text-white">
+        <section className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden h-fit">
+          <div className="p-6 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-blue-600 to-blue-900 text-white">
             <div className="flex items-center gap-3">
-              <Music size={24} className="text-chelsea-gold" />
+              <Music size={24} className="text-yellow-400" />
               <h2 className="text-xl font-bold">Chant Book</h2>
             </div>
             <p className="text-blue-200 text-sm mt-1">Learn the lyrics before kick-off.</p>
@@ -68,10 +90,14 @@ export default function FanZone() {
                 <div className="flex items-start justify-between mb-3">
                   <h3 className="font-bold text-lg text-gray-900 dark:text-white">{chant.title}</h3>
                   <button 
-                    onClick={() => togglePlay(chant.id)}
-                    className={`p-2 rounded-full transition-all ${playing === chant.id ? 'bg-chelsea-gold text-white animate-pulse' : 'bg-gray-100 dark:bg-gray-700 text-chelsea-blue'}`}
+                    onClick={() => togglePlay(chant)}
+                    className={`p-3 rounded-full transition-all shadow-md flex items-center justify-center ${
+                        playingId === chant.id 
+                        ? 'bg-yellow-400 text-blue-900 animate-pulse' 
+                        : 'bg-gray-100 dark:bg-gray-700 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-600'
+                    }`}
                   >
-                    {playing === chant.id ? <Pause size={18} /> : <Play size={18} />}
+                    {playingId === chant.id ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
                   </button>
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
@@ -102,7 +128,7 @@ export default function FanZone() {
               </div>
               <div className="p-6 grid gap-6">
                  <div className="flex items-start gap-4">
-                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-chelsea-blue">
+                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-blue-600 dark:text-blue-400">
                        <Train size={24} />
                     </div>
                     <div>
@@ -130,7 +156,7 @@ export default function FanZone() {
            {/* Pub Guide */}
            <section className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
               <h3 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                 <Beer size={20} className="text-chelsea-gold" /> Pre-Match Pubs
+                 <Beer size={20} className="text-yellow-500" /> Pre-Match Pubs
               </h3>
               <div className="space-y-4">
                  {PUBS.map((pub, i) => (
@@ -139,7 +165,7 @@ export default function FanZone() {
                           <h4 className="font-bold text-sm text-gray-900 dark:text-white">{pub.name}</h4>
                           <p className="text-xs text-gray-500 dark:text-gray-400">{pub.desc}</p>
                        </div>
-                       <span className="text-xs font-bold text-chelsea-blue bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded">
+                       <span className="text-xs font-bold text-blue-600 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded">
                          {pub.dist}
                        </span>
                     </div>
